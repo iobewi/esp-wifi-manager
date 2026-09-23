@@ -1,7 +1,5 @@
 #![no_std]
 
-extern crate alloc;
-
 //! Reusable ESP Wi-Fi station transport.
 //!
 //! Owns only Wi-Fi/network mechanics:
@@ -15,6 +13,8 @@ extern crate alloc;
 //!
 //! It deliberately does not own credential persistence, provisioning
 //! protocols, TLS, HTTP, heartbeat/log services or application supervision.
+
+extern crate alloc;
 
 use alloc::string::String;
 use alloc::vec::Vec;
