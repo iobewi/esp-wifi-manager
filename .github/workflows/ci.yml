@@ -1,0 +1,15 @@
+name: Rust
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check-esp32c3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: riscv32imc-unknown-none-elf
+      - run: cargo check --features esp32c3 --target riscv32imc-unknown-none-elf
