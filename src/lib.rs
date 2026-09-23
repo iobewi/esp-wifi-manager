@@ -179,6 +179,23 @@ impl<const SOCKETS: usize> WifiManager<SOCKETS> {
             return false;
         };
 
+        // Reprovisioning may happen while the station is already associated
+        // (for example through Improv Serial). esp-radio does not treat
+        // set_config()+connect_async() as a roam/reconfigure operation on an
+        // already-connected station: explicitly tear the old association down
+        // first, and wait until embassy-net has dropped the old DHCP config so
+        // wait_config_up() below cannot return immediately with a stale lease.
+        if radio.controller.is_connected() {
+            info!("Wi-Fi: disconnecting current association before reconfiguration");
+            if let Err(e) = radio.controller.disconnect_async().await {
+                warn!("Wi-Fi: disconnect before reconfiguration failed: {e:?}");
+                return false;
+            }
+        }
+        if radio.stack.is_config_up() {
+            radio.stack.wait_config_down().await;
+        }
+
         let mut config = StationConfig::default()
             .with_ssid(ssid)
             .with_password(password);
